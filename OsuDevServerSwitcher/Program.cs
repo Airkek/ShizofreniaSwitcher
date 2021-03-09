@@ -19,6 +19,8 @@ namespace OsuDevServerSwitcher
         [STAThread]
         public static void Main()
         {
+            Console.Title = Settings.ServerName;
+            
             var configPath = Path.Combine(AppData, Settings.ServerName);
             var configFile = Path.Combine(configPath, "osuPath.txt");
             
