@@ -16,6 +16,8 @@ namespace OsuDevServerSwitcher
             Path.Combine(ProgramFiles, "osu!")
         };
         
+        private const string CE_CONFIG_LINE = "_ReleaseStream = CuttingEdge";
+
         [STAThread]
         public static void Main()
         {
@@ -24,7 +26,7 @@ namespace OsuDevServerSwitcher
             var configPath = Path.Combine(AppData, Settings.ServerName);
             var configFile = Path.Combine(configPath, "osuPath.txt");
             
-            string osuPath;
+            string osuFile;
 
             if (!Directory.Exists(configPath))
                 Directory.CreateDirectory(configPath);
@@ -32,23 +34,23 @@ namespace OsuDevServerSwitcher
             readconfig:
             if (!File.Exists(configFile))
             {
-                osuPath = GetOsuPath();
-                File.WriteAllText(configFile, osuPath);
+                osuFile = GetOsuFilePath();
+                File.WriteAllText(configFile, osuFile);
             }
             else
             {
-                osuPath = File.ReadAllText(configFile);
+                osuFile = File.ReadAllText(configFile);
 
-                if (!File.Exists(osuPath))
+                if (!File.Exists(osuFile))
                 {
-                    File.Delete(osuPath);
+                    File.Delete(configFile);
                     goto readconfig;
                 }
             }
-
-            if (string.IsNullOrEmpty(osuPath))
+            
+            if (string.IsNullOrEmpty(osuFile))
                 return;
-
+            
             if (Process.GetProcessesByName("osu!.exe").Length != 0)
             {
                 Console.WriteLine("osu! is running. Please, close osu! and rerun this file.");
@@ -56,10 +58,15 @@ namespace OsuDevServerSwitcher
                 return;
             }
 
-            Process.Start(osuPath, "-devserver " + Settings.ServerUrl);
+            var osuPath = Path.GetDirectoryName(osuFile);
+            var osuConfig = Path.Combine(osuPath, "osu!.cfg");
+
+            using (var stream = new StreamWriter(osuConfig)) stream.Write(CE_CONFIG_LINE);
+
+            Process.Start(osuFile, "-devserver " + Settings.ServerUrl);
         }
 
-        private static string GetOsuPath()
+        private static string GetOsuFilePath()
         {
             foreach (var path in CommonOsuPaths)
             {
