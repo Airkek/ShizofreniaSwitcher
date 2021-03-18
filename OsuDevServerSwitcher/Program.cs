@@ -15,8 +15,6 @@ namespace OsuDevServerSwitcher
             Path.Combine(AppData, "osu!"),
             Path.Combine(ProgramFiles, "osu!")
         };
-        
-        private const string CE_CONFIG_LINE = "_ReleaseStream = CuttingEdge";
 
         [STAThread]
         public static void Main()
@@ -57,12 +55,7 @@ namespace OsuDevServerSwitcher
                 Console.ReadKey();
                 return;
             }
-
-            var osuPath = Path.GetDirectoryName(osuFile);
-            var osuConfig = Path.Combine(osuPath, "osu!.cfg");
-
-            using (var stream = new StreamWriter(osuConfig)) stream.Write(CE_CONFIG_LINE);
-
+            
             Process.Start(osuFile, "-devserver " + Settings.ServerUrl);
         }
 
